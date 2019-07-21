@@ -1,18 +1,13 @@
 import React from 'react';
 import { required, email } from 'redux-form-validators';
-import { withStyles, makeStyles, createMuiTheme  } from '@material-ui/core/styles';
-import { ThemeProvider } from '@material-ui/styles';
-
 
 import { Form, Field } from 'react-final-form';
-import { TextField, Select } from 'final-form-material-ui';
-import MenuItem from '@material-ui/core/MenuItem';
-
-import { green } from '@material-ui/core/colors';
+import Input from 'components/Input';
+import Select from 'components/Select';
 
 import { numberCheckExpression } from './const';
 
-import './App.scss';
+import s from './App.module.scss';
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
@@ -21,40 +16,14 @@ const onSubmit = async values => {
   window.alert(JSON.stringify(values, 0, 2))
 }
 
-const theme = createMuiTheme({
-  palette: {
-    primary: green,
-  },
-});
+const handleSubmit = () => {
 
-const CssTextField = withStyles({
-  root: {
-    '& label.Mui-focused': {
-      color: 'green',
-    },
-    '& .MuiInput-underline:after': {
-      borderBottomColor: 'green',
-    },
-    '& .MuiOutlinedInput-root': {
-      '& fieldset': {
-        borderColor: 'red',
-      },
-      '&:hover .MuiInput-underline:before': {
-        outline: 'yellow',
-      },
-      '&.Mui-focused fieldset': {
-        borderColor: 'green',
-      },
-    },
-  },
-})(TextField);
-
+}
 
 function App() {
   return (
-    <div className="root">
+    <div className={s.root}>
       <Form
-        onSubmit={onSubmit}
         initialValues={{
           email: '',
           phone: '',
@@ -62,9 +31,15 @@ function App() {
           company: '',
           briefMessage: '',
         }}
-        validate={values => {
-          const errors = {}
-
+        onSubmit={values => {
+            const keys = Object.keys(values);
+            keys.splice(1, 3);
+            const errors = {};
+              keys.forEach((idx) => {
+              if (!values[idx]) {
+                errors[idx] = required()(values[idx]);
+              }
+            });
             errors.email =
             required()(values.email)
             ||
@@ -94,77 +69,53 @@ function App() {
           pristine,
           values,
           errors,
+          invalid,
         }) => (
-          <form className="content">
-            <ThemeProvider theme={theme}>
+          <form className={s.content}>
+            <h1 className={s.title}>Hello, my name is* |John Doe</h1>
               <Field
-                name="name"
-                render={({ input, meta }) => (
-                  <input
-                    placeholder="John Doe"
-                    {...input}
-                    className={
-                      classnames(
-                        styles.input,
-                        {
-                          errorName: meta.touched &&
-                          (meta.error || (meta.submitError && !meta.dirtySinceLastSubmit)),
-                        },
-                      )
-                    }
-                  />
-                )}
-              />
-              <Field
-                className="input"
                 name="email"
-                type="text"
-                component={CssTextField}
+                component={Input}
                 label="Email*"
-                margin="normal"
-                id="email"
               />
               <Field
-                className="input"
                 name="phone"
-                type="text"
-                component={TextField}
+                component={Input}
                 label="Phone"
-                margin="normal"
+                isOptional
               />
               <Field
-                className="Select"
                 name="interested"
-                label="I'm interested in*"
-                formControlProps={{className: 'select'}}
                 component={Select}
+                label="I'm interested in*"
               >
-                <MenuItem value="London">
-                    London
-                </MenuItem>
-
-                <MenuItem value="Paris">
-                    Paris
-                </MenuItem>
+                <option value="default"></option>
+                <option value="chicken"> Chicken</option>
+                <option value="ham"> Ham</option>
+                <option value="mushrooms"> Mushrooms</option>
+                <option value="cheese"> Cheese</option>
+                <option value="tuna"> Tuna</option>
+                <option value="pineapple"> Pineapple</option>
               </Field>
               <Field
-                className="input"
                 name="company"
-                type="text"
-                component={TextField}
+                component={Input}
                 label="Company"
-                margin="normal"
+                isOptional
               />
               <Field
                 name="briefMessage"
-                type="text"
-                component={TextField}
+                component={Input}
                 label="Brief Message*"
-                margin="normal"
-                fullWidth
               />
-            </ThemeProvider>
-            <pre>{JSON.stringify({values, errors}, 0, 2)}</pre>
+              <button
+                type="submit"
+                disabled={pristine || invalid}
+                className={s.submit}
+              >
+                Submit
+              </button>
+            {/* <pre>{JSON.stringify({values, errors}, 0, 2)}</pre> */}
           </form>
         )}
       />
