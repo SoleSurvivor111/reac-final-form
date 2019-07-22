@@ -1,8 +1,14 @@
-.select {
-  flex: 1 1 38%;
-  margin-right: 10%;
+.arrow {
+  background: url('../../images/arrow.png') no-repeat white;
+  background-size: contain;
+  width: 20px;
+  height: 12px;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transition: .3s;
 }
 
-.menu-item {
-  margin-right: 5px;
+.active {
+  transform: rotate(180deg);
 }

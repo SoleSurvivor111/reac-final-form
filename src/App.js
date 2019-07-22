@@ -12,56 +12,33 @@ import s from './App.module.scss';
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 const onSubmit = async values => {
-  await sleep(300)
+  await sleep(3000)
   window.alert(JSON.stringify(values, 0, 2))
 }
 
-const handleSubmit = () => {
+const composeValidators = (...validators) => value =>
+  validators.reduce((error, validator) => error || validator(value), undefined);
 
+
+const checkPhoneNumber = (value) => {
+     return numberCheckExpression.test(value) ?
+     ''
+     :
+     'Введите номер в формате +7-XXX-XXX-XX-XX';
 }
-
 function App() {
   return (
     <div className={s.root}>
       <Form
         initialValues={{
+          name: ' John Doe',
           email: '',
           phone: '',
           interested: '',
           company: '',
           briefMessage: '',
         }}
-        onSubmit={values => {
-            const keys = Object.keys(values);
-            keys.splice(1, 3);
-            const errors = {};
-              keys.forEach((idx) => {
-              if (!values[idx]) {
-                errors[idx] = required()(values[idx]);
-              }
-            });
-            errors.email =
-            required()(values.email)
-            ||
-            email()(values && values.email);
-
-            if (values.phone){
-               errors.phone = numberCheckExpression.test(values.phone) ?
-               ''
-               :
-               'Введите номер в формате +7-XXX-XXX-XX-XX';
-            }
-
-            if (!values.briefMessage) {
-              errors.briefMessage = required()(values.briefMessage);
-            }
-
-            if (!values.interested) {
-              errors.interested = required()(values.interested);
-            }
-
-          return errors
-        }}
+        onSubmit={onSubmit}
         render={({
           handleSubmit,
           form,
@@ -70,26 +47,45 @@ function App() {
           values,
           errors,
           invalid,
+          reset,
         }) => (
-          <form className={s.content}>
-            <h1 className={s.title}>Hello, my name is* |John Doe</h1>
+          <form
+            className={s.content}
+            onSubmit={handleSubmit}
+          >
+            <h1
+              className={s.title}
+            >
+              Hello, my name is* |
+              <Field
+                className={`${s["title-input"]} ${values.name ===' John Doe'
+                  && s.default}`}
+                name="name"
+                component="input"
+                label="Name*"
+                validate={composeValidators(required())}
+              />
+            </h1>
               <Field
                 name="email"
                 component={Input}
                 label="Email*"
+                validate={composeValidators(required(), email())}
               />
               <Field
                 name="phone"
                 component={Input}
                 label="Phone"
                 isOptional
+                validate={composeValidators(checkPhoneNumber)}
               />
               <Field
                 name="interested"
                 component={Select}
                 label="I'm interested in*"
+                validate={composeValidators(required())}
               >
-                <option value="default"></option>
+                <option value=""></option>
                 <option value="chicken"> Chicken</option>
                 <option value="ham"> Ham</option>
                 <option value="mushrooms"> Mushrooms</option>
@@ -102,15 +98,17 @@ function App() {
                 component={Input}
                 label="Company"
                 isOptional
+                validate={composeValidators(required())}
               />
               <Field
                 name="briefMessage"
                 component={Input}
                 label="Brief Message*"
+                validate={composeValidators(required())}
               />
               <button
                 type="submit"
-                disabled={pristine || invalid}
+                // disabled={pristine || invalid}
                 className={s.submit}
               >
                 Submit

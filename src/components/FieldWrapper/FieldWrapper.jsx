@@ -15,6 +15,7 @@ const FieldWrapper = ({
       <Component
         style={s.field}
         input={input}
+        meta={meta}
         >
           {children}
         </Component>
